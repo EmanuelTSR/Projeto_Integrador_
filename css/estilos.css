@@ -1,0 +1,31 @@
+form{
+    margin-top: 30px;
+    text-align: center;
+ }
+
+ input{
+    margin-bottom:10px;
+ }
+
+ form input[type="submit"]{
+   margin-top: 10px;
+
+ }
+
+ .card{
+
+   margin-top: 40px;
+   padding: 5px;
+ }
+
+ .textos{
+   display: flex;
+   justify-content: space-around;
+   margin-top: 20px;
+   font-weight: bold;
+
+ }
+
+ .card a{
+   margin-top: 5px;
+ }
