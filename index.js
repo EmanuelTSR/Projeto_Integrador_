@@ -125,3 +125,4 @@ app.listen(3000, (error) => {
     console.log("deu bom")
 
 })
+console.log("Alo mundao")
