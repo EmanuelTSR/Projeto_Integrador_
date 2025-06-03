@@ -122,7 +122,6 @@ app.listen(3000, (error) => {
         console.log("deu ruim")
         return;
     } 
-    console.log("deu bom")
+    console.log("deu tudo certo")
 
-})
-console.log("Alo mundao")
+});
