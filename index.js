@@ -123,6 +123,5 @@ app.listen(3000, (error) => {
         return;
     } 
     console.log("deu tudo certo")
-    console.log("deu bom")
 
 });
