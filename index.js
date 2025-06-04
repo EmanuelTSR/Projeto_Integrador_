@@ -107,9 +107,18 @@ app.get('/remover/:codigo&:imagem', function(req, res){
 });
 
 //rota para redirecionar para o formulario de edição
-app.get('/formularioEditar/:codigo',function(req, res){
-  res.render('formulario_editar');
+app.get('/formulario_editar/:codigo', function(req, res){
+  let sql = `SELECT * FROM produtos WHERE codigo = ${req.paramans.codigo}`;
 
+  //executar comando SQL
+  conexao.querry(sql, function(erro,retorno){
+    if(erro) throw erro;
+
+    //caso conssiga executar
+    res.render('formulario_editar', {produto:retorno[0]});
+
+
+  })
 });
 
 

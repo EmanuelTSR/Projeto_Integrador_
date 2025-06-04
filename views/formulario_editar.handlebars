@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-6 offset-3" style="background-color:aquamarine"> 
             <form /action="/editar" method="post" enctype="multipart/form-data">
-                <input type="number" name="codigo">
+                <input type="number" name="codigo" value="{{produto.codigo}}">
                 <input type="text" name="nome" class="form-control" placeholder="Nome do produto">
                 <input type="number" name="valor" class="form-control" placeholder="Valor produto">
                 <input type="file" name="imagem" class="form-control">
