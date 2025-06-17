@@ -121,43 +121,7 @@ app.get('/formulario_editar/:codigo', function(req, res){
   })
 });
 
-app.post('/verificar-quantidade', function(req, res) {
-    const { codigo } = req.body;
 
-    const sql = `SELECT * FROM produtos WHERE codigo = ${codigo}`;
-
-    conexao.query(sql, function(erro, retorno) {
-        if (erro) throw erro;
-
-        const produto = retorno[0];
-
-        if (produto.quantidade === 0) {
-            res.render('confirmar_exclusao', { produto });
-        } else {
-            res.redirect('/');
-        }
-    });
-});
-
-
-
-app.get('/', (req, res) => {
-  const sql = 'SELECT * FROM produtos';
-
-  conexao.query(sql, function(erro, retorno) {
-    if (erro) throw erro;
-
-    // Adiciona uma flag de alerta em produtos com pouca quantidade
-    const produtos = retorno.map(produto => {
-      return {
-        ...produto,
-        alerta: produto.quantidade <= 5
-      };
-    });
-
-    res.render('formulario', { produtos });
-  });
-});
 
 
 
