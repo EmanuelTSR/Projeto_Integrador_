@@ -33,6 +33,10 @@ app.set('views', './views');
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
+//Ligação com o historico de açoes
+const filaAcoes = require('./acoesfila');
+
+
 //conexao
 const conexao = mysql.createConnection({
     host:'localhost',
@@ -62,39 +66,45 @@ app.get('/', (req,res) =>{
 })
 
 //rota de cadastro
-app.post('/cadastrar', function (req,res){
-        //obter os dados que serao usados para o cadastro
-        let nome = req.body.nome;
-        let valor = req.body.valor;
-        let imagem = req.files.imagem.name;
-        let quantidade = req.body.quantidade;
+app.post('/cadastrar', function (req, res) {
+  if (!req.files || !req.files.imagem) {
+    return res.status(400).send("Imagem não enviada.");
+  }
 
-        //SQL
-        let sql = `INSERT INTO produtos (nome, valor, imagem, quantidade) VALUES (?, ?, ?, ?)`;
-conexao.query(sql, [nome, valor, imagem, quantidade], function(erro, retorno) {
-    if (erro) throw erro;
+  let nome = req.body.nome;
+  let valor = req.body.valor;
+  let quantidade = req.body.quantidade;
+  let imagem = req.files.imagem.name;
 
-    req.files.imagem.mv(__dirname + '/imagens/' + imagem);
-    res.redirect('/');
+  let sql = 'INSERT INTO produtos (nome, valor, imagem, quantidade) VALUES (?, ?, ?, ?)';
+
+  // Use .execute para evitar SQL injection
+  conexao.execute(sql, [nome, valor, imagem, quantidade], function (erro, retorno) {
+    if (erro) {
+      console.error("Erro no INSERT:", erro.sqlMessage);
+      return res.status(500).send("Erro ao inserir produto.");
+    }
+
+    // Agora sim, salvar a imagem com verificação de erro
+    req.files.imagem.mv(__dirname + '/imagens/' + imagem, function (erro_mv) {
+      if (erro_mv) {
+        console.error("Erro ao salvar imagem:", erro_mv);
+        return res.status(500).send("Erro ao salvar imagem.");
+      }
+
+      // Adiciona ao histórico
+      filaAcoes.enfileirar({
+        tipo: 'cadastro',
+        produto: nome,
+        data: new Date()
+      });
+
+      // Redireciona só depois de salvar a imagem com sucesso
+      res.redirect('/');
+    });
+  });
 });
 
-
-        // executar comando SQL
-        conexao.query(sql, function(erro, retorno){
-            //caso de erro
-            if(erro) throw erro;
-
-            //caso de certo o cadastro
-            req.files.imagem.mv(__dirname+'/imagens/'+req.files.imagem.name);
-            console.log(retorno);
-            
-            //retornar para a rota principal
-            res.redirect('/');
-
-
-        });
-
-});
 
 //rota para remover produtos
 app.get('/remover/:codigo&:imagem', function(req, res){
@@ -127,6 +137,14 @@ app.get('/formulario_editar/:codigo', function(req, res){
 
 
   })
+   //enfileirando o historico de açoes 
+    filaAcoes.enfileirar({
+    tipo: 'remocao',
+    produto: req.params.codigo,
+    data: new Date()
+});
+
+  
 });
 
 app.post('/editar', function(req, res){
@@ -142,8 +160,20 @@ app.post('/editar', function(req, res){
     if(erro) throw erro;
     res.redirect('/');
   });
+
+     //enfileirando o historico de açoes 
+    filaAcoes.enfileirar({
+    tipo: 'remocao',
+    produto: req.params.codigo,
+    data: new Date()
+});
 });
 
+
+//rota historico
+    app.get('/historico', (req, res) => {
+    res.render('historico', { acoes: filaAcoes.listar() });
+});
 
 
 
