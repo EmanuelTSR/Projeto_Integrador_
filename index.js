@@ -67,9 +67,17 @@ app.post('/cadastrar', function (req,res){
         let nome = req.body.nome;
         let valor = req.body.valor;
         let imagem = req.files.imagem.name;
+        let quantidade = req.body.quantidade;
 
         //SQL
-        let sql = `INSERT INTO produtos (nome, valor, imagem) VALUES ('${nome}', ${valor}, '${imagem}')`;
+        let sql = `INSERT INTO produtos (nome, valor, imagem, quantidade) VALUES (?, ?, ?, ?)`;
+conexao.query(sql, [nome, valor, imagem, quantidade], function(erro, retorno) {
+    if (erro) throw erro;
+
+    req.files.imagem.mv(__dirname + '/imagens/' + imagem);
+    res.redirect('/');
+});
+
 
         // executar comando SQL
         conexao.query(sql, function(erro, retorno){

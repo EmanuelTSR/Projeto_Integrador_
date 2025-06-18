@@ -3,12 +3,13 @@
 
 <main>
 {{!--Formulario --}}
-<div class="container" style="background-color: gray">
+<div class="container" style="">
     <h1>Teste</h1>
     <div class="row">
         <div class="col-6 offset-3" style="background-color:aquamarine"> 
             <form action="/editar" method="post" enctype="multipart/form-data">
 <input type="hidden" name="nomeImagem" value="{{produto.imagem}}">
+                    <img src="../imagens/{{produto.imagem}}">
                     <input type="hidden" name="codigo" value="{{produto.codigo}}">
                     <input type="text"   name="nome"   value="{{produto.nome}}" class="form-control" placeholder="Nome do produto">
                     <input type="number" name="valor"  value="{{produto.valor}}" class="form-control" placeholder="Valor do produto">
