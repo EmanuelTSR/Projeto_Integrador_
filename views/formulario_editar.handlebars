@@ -1,29 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Produto</title>
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
 
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center">
+          <h4 class="mb-0">✏️ Editar Produto</h4>
+        </div>
+        <div class="card-body">
 
+          <form action="/editar" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="nomeImagem" value="{{produto.imagem}}">
+            <input type="hidden" name="codigo" value="{{produto.codigo}}">
 
-<main>
-{{!--Formulario --}}
-<div class="container" style="">
-    <h1>Edição Produto</h1>
-    <div class="row">
-        <div class="col-6 offset-3" style="background-color:aquamarine"> 
-            <form action="/editar" method="post" enctype="multipart/form-data">
-<input type="hidden" name="nomeImagem" value="{{produto.imagem}}">
-                    <img src="../imagens/{{produto.imagem}}">
-                    <input type="hidden" name="codigo" value="{{produto.codigo}}">
-                    <input type="text"   name="nome"   value="{{produto.nome}}" class="form-control" placeholder="Nome do produto">
-                    <input type="number" name="valor"  value="{{produto.valor}}" class="form-control" placeholder="Valor do produto">
-                    <input type="number" name="quantidade"  value="{{produto.quantidade}}" class="form-control" placeholder="Quantidade do produto">
-                    <input type="file"   name="imagem" class="form-control" >
-                    <input type="submit" class="btn btn-primary" value="Alterar">
-                <a href="/" class="btn btn-secondary">Cancelar</a>
-            </form>
+            <!-- Imagem atual -->
+            <div class="text-center mb-3">
+              <img src="/imagens/{{produto.imagem}}" class="img-fluid rounded" style="max-height: 150px;" alt="Imagem do produto">
+            </div>
+
+            <!-- Nome -->
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome do produto:</label>
+              <input type="text" name="nome" id="nome" value="{{produto.nome}}" class="form-control" required>
+            </div>
+
+            <!-- Valor -->
+            <div class="mb-3">
+              <label for="valor" class="form-label">Valor:</label>
+              <input type="number" name="valor" id="valor" value="{{produto.valor}}" step="0.01" class="form-control" required>
+            </div>
+
+            <!-- Quantidade -->
+            <div class="mb-3">
+              <label for="quantidade" class="form-label">Quantidade:</label>
+              <input type="number" name="quantidade" id="quantidade" value="{{produto.quantidade}}" class="form-control" required>
+            </div>
+
+            <!-- Imagem nova -->
+            <div class="mb-3">
+              <label for="imagem" class="form-label">Alterar imagem (opcional):</label>
+              <input type="file" name="imagem" id="imagem" class="form-control">
+            </div>
+
+            <!-- Botões -->
+            <div class="d-flex justify-content-between">
+              <a href="/inicio" class="btn btn-secondary">Cancelar</a>
+              <input type="submit" value="Salvar Alterações" class="btn btn-primary">
+            </div>
+          </form>
 
         </div>
+      </div>
+
     </div>
-
-
-</div>
-
-
+  </div>
 </main>
+
+</body>
+</html>

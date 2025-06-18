@@ -1,7 +1,33 @@
-<h2>Histórico de Ações</h2>
-<ul>
-  {{#each acoes}}
-    <li>{{tipo}} - Produto: {{produto}} - Data: {{data}} </li>
-  {{/each}}
-</ul>
-<a href="/">Voltar</a>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Histórico de Ações</title>
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+  <div class="container py-5">
+    <h2 class="mb-4">📜 Histórico de Ações</h2>
+
+    {{#if acoes.length}}
+      <div class="list-group">
+        {{#each acoes}}
+          <div class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1 text-capitalize">{{tipo}}</h5>
+              <small>{{formatarData data}}</small>
+            </div>
+            <p class="mb-1">Produto relacionado: <strong>{{produto}}</strong></p>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <div class="alert alert-info">Nenhuma ação registrada ainda.</div>
+    {{/if}}
+
+    <a href="/inicio" class="btn btn-secondary mt-4">Voltar para o início</a>
+  </div>
+
+</body>
+</html>

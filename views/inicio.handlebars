@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Produtos Cadastrados</title>
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/inicio">📦 Estocando</a>
+      <div>
+        <a href="/cadastro" class="btn btn-outline-light me-2">Cadastrar Produto</a>
+        <a href="/historico" class="btn btn-outline-light">Histórico</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTEÚDO -->
+  <div class="container">
+    <h2 class="mb-4">Todos os Produtos</h2>
+
+    <!-- Busca e Filtro -->
+    <form method="GET" action="/inicio" class="row g-3 mb-4">
+      <div class="col-md-6">
+        <input type="text" name="busca" class="form-control" placeholder="Buscar por nome..." value="{{busca}}">
+      </div>
+      <div class="col-md-4">
+        <select name="filtro" class="form-select">
+          <option value="">Filtrar por</option>
+          <option value="estoque_baixo" {{#if (eq filtro 'estoque_baixo')}}selected{{/if}}>Estoque baixo (&lt; 5)</option>
+          <option value="valor_maior" {{#if (eq filtro 'valor_maior')}}selected{{/if}}>Valor &gt; R$ 100</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">🔍 Buscar</button>
+      </div>
+    </form>
+
+    <!-- Lista de produtos -->
+    <div class="row">
+      {{#each produtos}}
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <img src="/imagens/{{imagem}}" class="card-img-top" style="max-height: 200px; object-fit: contain;">
+            <div class="card-body">
+              <h5 class="card-title">{{nome}}</h5>
+              <p class="card-text">Valor: R$ {{valor}}</p>
+              <p class="card-text">Quantidade: {{quantidade}}</p>
+              <a href="/formulario_editar/{{codigo}}" class="btn btn-outline-primary btn-sm">Editar</a>
+              <a href="/remover/{{codigo}}&{{imagem}}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Tem certeza?')">Remover</a>
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+
+    {{#unless produtos.length}}
+      <div class="alert alert-info">Nenhum produto encontrado.</div>
+    {{/unless}}
+  </div>
+
+</body>
+</html>
