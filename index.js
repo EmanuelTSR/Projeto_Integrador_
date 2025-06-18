@@ -129,6 +129,20 @@ app.get('/formulario_editar/:codigo', function(req, res){
   })
 });
 
+app.post('/editar', function(req, res){
+  let codigo = req.body.codigo;
+  let nome = req.body.nome;
+  let valor = req.body.valor;
+  let quantidade = req.body.quantidade;
+
+  // Atualiza o banco
+  let sql = `UPDATE produtos SET nome = ?, valor = ?, quantidade = ? WHERE codigo = ?`;
+
+  conexao.query(sql, [nome, valor, quantidade, codigo], function(erro, retorno){
+    if(erro) throw erro;
+    res.redirect('/');
+  });
+});
 
 
 
