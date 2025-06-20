@@ -212,15 +212,16 @@ app.post('/editar', verificarAutenticacao, function (req, res) {
   });
 });
 
-// ROTA: Histórico
+// ROTA: Historico
 app.get('/historico', verificarAutenticacao, (req, res) => {
   res.render('historico', { acoes: filaAcoes.listar() });
 });
 
-// ROTA: Início - exibe produtos e carrega na memória
-app.get('/inicio', verificarAutenticacao, (req, res) => {
+// ROTA: Inicio - exibe produtos e carrega na memória
+app.get('/inicio', (req, res) => {
   let busca = req.query.busca || '';
   let filtro = req.query.filtro || '';
+  let ordenacao = req.query.ordenacao || ''; // Obter a opção de ordenação
   let sql = 'SELECT * FROM produtos';
   let parametros = [];
 
@@ -238,14 +239,25 @@ app.get('/inicio', verificarAutenticacao, (req, res) => {
     sql += ' valor > 100';
   }
 
+  // Adiciona a ordenação, se necessário
+  if (ordenacao === 'preco_desc') {
+    sql += ' ORDER BY valor DESC';  // Do mais caro para o mais barato
+  } else if (ordenacao === 'preco_asc') {
+    sql += ' ORDER BY valor ASC';   // Do mais barato para o mais caro
+  } else if (ordenacao === 'quantidade_desc') {
+    sql += ' ORDER BY quantidade DESC';  // Da maior para a menor quantidade
+  } else if (ordenacao === 'quantidade_asc') {
+    sql += ' ORDER BY quantidade ASC';   // Da menor para a maior quantidade
+  }
+
   conexao.query(sql, parametros, (erro, resultado) => {
     if (erro) throw erro;
-    res.render('inicio', { produtos: resultado, busca });
+    res.render('inicio', { produtos: resultado, busca, filtro, ordenacao });
   });
 });
 
 // ROTA: Página de Baixa
-app.get('/baixa', verificarAutenticacao, (req, res) => {
+app.get('/baixa', (req, res) => {
   let sql = 'SELECT * FROM produtos';
   conexao.query(sql, function (erro, retorno) {
     if (erro) throw erro;
@@ -254,7 +266,7 @@ app.get('/baixa', verificarAutenticacao, (req, res) => {
 });
 
 // ROTA: Registrar Baixa no Estoque
-app.post('/baixa', verificarAutenticacao, (req, res) => {
+app.post('/baixa', (req, res) => {
   let produtoCodigo = req.body.produto; // Código do produto selecionado
   let quantidadeBaixa = parseInt(req.body.quantidade); // Quantidade da baixa
   let motivo = req.body.motivo; // Motivo da baixa

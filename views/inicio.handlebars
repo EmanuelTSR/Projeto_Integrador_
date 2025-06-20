@@ -4,6 +4,24 @@
   <meta charset="UTF-8">
   <title>Produtos Cadastrados</title>
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <style>
+    .filter-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .filter-container .form-select,
+    .filter-container .form-control {
+      width: 45%;
+    }
+    .card-img-top {
+      max-height: 200px;
+      object-fit: contain;
+    }
+    .btn-custom {
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body class="bg-light">
 
@@ -14,7 +32,6 @@
       <div>
         <a href="/cadastro" class="btn btn-outline-light me-2">Cadastrar Produto</a>
         <a href="/historico" class="btn btn-outline-light">Histórico</a>
-        <!-- Botão para acessar a página de baixa -->
         <a href="/baixa" class="btn btn-outline-light">Baixa de Estoque</a>
         <a href="/relatorio" class="btn btn-outline-light">Relatório</a>
       </div>
@@ -25,29 +42,34 @@
   <div class="container">
     <h2 class="mb-4">Todos os Produtos</h2>
 
-    <!-- Busca e Filtro -->
-    <form method="GET" action="/inicio" class="row g-3 mb-4">
-      <div class="col-md-6">
-        <input type="text" name="busca" class="form-control" placeholder="Buscar por nome..." value="{{busca}}">
+    <!-- Unificando Busca, Filtro e Ordenação -->
+    <form method="GET" action="/inicio" class="filter-container">
+      <div class="d-flex">
+        <input type="text" name="busca" class="form-control me-2" placeholder="Buscar por nome..." value="{{busca}}">
+        <button type="submit" class="btn btn-primary btn-custom">🔍 Buscar</button>
       </div>
-      <div class="col-md-4">
-        <select name="filtro" class="form-select">
+      <div class="d-flex">
+        <select name="filtro" class="form-select me-2">
           <option value="">Filtrar por</option>
           <option value="estoque_baixo" {{#if (eq filtro 'estoque_baixo')}}selected{{/if}}>Estoque baixo (&lt; 5)</option>
           <option value="valor_maior" {{#if (eq filtro 'valor_maior')}}selected{{/if}}>Valor &gt; R$ 100</option>
         </select>
-      </div>
-      <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">🔍 Buscar</button>
+        <select name="ordenacao" class="form-select">
+          <option value="">Ordenar por</option>
+          <option value="preco_desc" {{#if (eq ordenacao 'preco_desc')}}selected{{/if}}>Preço: Maior para Menor</option>
+          <option value="preco_asc" {{#if (eq ordenacao 'preco_asc')}}selected{{/if}}>Preço: Menor para Maior</option>
+          <option value="quantidade_desc" {{#if (eq ordenacao 'quantidade_desc')}}selected{{/if}}>Quantidade: Maior para Menor</option>
+          <option value="quantidade_asc" {{#if (eq ordenacao 'quantidade_asc')}}selected{{/if}}>Quantidade: Menor para Maior</option>
+        </select>
       </div>
     </form>
 
     <!-- Lista de produtos -->
     <div class="row">
       {{#each produtos}}
-        <div class="col-md-4">
-          <div class="card mb-4 shadow-sm">
-            <img src="/imagens/{{imagem}}" class="card-img-top" style="max-height: 200px; object-fit: contain;">
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm">
+            <img src="/imagens/{{imagem}}" class="card-img-top">
             <div class="card-body">
               <h5 class="card-title">{{nome}}</h5>
               <p class="card-text">Valor: R$ {{valor}}</p>
