@@ -1,47 +1,41 @@
-
-
-
 <main>
-{{!--Formulario --}}
-<div class="container" style="">
-    <h1>Teste</h1>
-    <div class="row">
-        <div class="col-6 offset-3" style="background-color:aquamarine"> 
-                <form action="/cadastro" method="post" enctype="multipart/form-data">   
-                <input type="text" name="nome" class="form-control" placeholder="Nome produto">
-                <input type="number" name="valor" class="form-control" placeholder="Valor produtos">
-                <input type="number" name="quantidade" class="form-control" placeholder="Quantidade" required>
-                <input type="file" name="imagem" class="form-control">
-                <input type="submit" class="btn btn-primary" value="Cadastro">
-            </form>
+    <!-- Formulário de Cadastro -->
+    <div class="container" style="margin-top: 50px;">
+        <h1 class="text-center mb-4">Cadastrar Novo Produto</h1>
+        <div class="row">
+            <div class="col-md-6 offset-md-3" style="background-color:#f8f9fa; padding: 30px; border-radius: 10px;">
+                <form action="/cadastro" method="post" enctype="multipart/form-data">
+                    <!-- Nome do Produto -->
+                    <div class="form-group mb-3">
+                        <label for="nome" class="form-label">Nome do Produto</label>
+                        <input type="text" name="nome" id="nome" class="form-control" placeholder="Digite o nome do produto" required>
+                    </div>
 
+                    <!-- Valor do Produto -->
+                    <div class="form-group mb-3">
+                        <label for="valor" class="form-label">Valor do Produto</label>
+                        <input type="number" name="valor" id="valor" class="form-control" placeholder="Digite o valor do produto" required>
+                    </div>
+
+                    <!-- Quantidade -->
+                    <div class="form-group mb-3">
+                        <label for="quantidade" class="form-label">Quantidade</label>
+                        <input type="number" name="quantidade" id="quantidade" class="form-control" placeholder="Digite a quantidade em estoque" required>
+                    </div>
+
+                    <!-- Imagem do Produto -->
+                    <div class="form-group mb-3">
+                        <label for="imagem" class="form-label">Imagem do Produto</label>
+                        <input type="file" name="imagem" id="imagem" class="form-control" required>
+                    </div>
+
+                    <!-- Botão de Envio -->
+                    <div class="d-flex justify-content-between">
+                        <a href="/inicio" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Cadastrar Produto</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-
-
-</div>
-
-
-
-{{!--Listagem de produtos --}}
-<div class ="container"> 
-    <div class="row"> 
-        {{#each produtos}}
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <img src="../imagens/{{imagem}}">
-                    <div class="textos">
-                        <p>{{nome}}</p>
-                        <p>R$ {{valor}}</p>
-                        <p>Quantidade: {{quantidade}}</p>
-                    </div>
-                    <a href="/formulario_editar/{{codigo}}" class="btn btn-warning">Alterar</a>
-                    <a href="/remover/{{codigo}}&{{imagem}}" class="btn btn-danger">Remover</a> 
-                </div>   
-            </div>
-        {{/each}}
-    </div>
-
-</div>
-
 </main>

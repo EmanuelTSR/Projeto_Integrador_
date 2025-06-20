@@ -178,6 +178,113 @@ app.get('/inicio', (req, res) => {
   });
 });
 
+
+
+// ROTA: Página de Baixa
+app.get('/baixa', (req, res) => {
+  let sql = 'SELECT * FROM produtos';
+  conexao.query(sql, function (erro, retorno) {
+    if (erro) throw erro;
+    res.render('baixa', { produtos: retorno });
+  });
+});
+
+// ROTA: Registrar Baixa no Estoque
+app.post('/baixa', (req, res) => {
+  let produtoCodigo = req.body.produto; // Código do produto selecionado
+  let quantidadeBaixa = parseInt(req.body.quantidade); // Quantidade da baixa
+  let motivo = req.body.motivo; // Motivo da baixa
+
+  // Consultar o estoque atual do produto
+  let sql = 'SELECT * FROM produtos WHERE codigo = ?';
+  conexao.query(sql, [produtoCodigo], function (erro, produto) {
+    if (erro) throw erro;
+
+    // Verificar se o estoque é suficiente
+    if (produto[0].quantidade < quantidadeBaixa) {
+      return res.status(400).send("Estoque insuficiente para a baixa.");
+    }
+
+    // Calcular nova quantidade
+    let novaQuantidade = produto[0].quantidade - quantidadeBaixa;
+
+    // Atualizar a quantidade no banco de dados
+    let sqlUpdate = 'UPDATE produtos SET quantidade = ? WHERE codigo = ?';
+    conexao.query(sqlUpdate, [novaQuantidade, produtoCodigo], function (erroUpdate) {
+      if (erroUpdate) throw erroUpdate;
+
+      // Registrar a ação de baixa na fila de ações (opcional)
+      filaAcoes.enfileirar({
+        tipo: 'baixa',
+        produto: produto[0].nome,
+        motivo: motivo,
+        quantidade: quantidadeBaixa,
+        data: new Date()
+      });
+
+      res.redirect('/inicio'); // Redirecionar para a página de listagem de produtos
+    });
+  });
+});
+
+const ExcelJS = require('exceljs');
+
+
+
+// ROTA: Página de Relatório
+app.get('/relatorio', (req, res) => {
+  let sql = 'SELECT * FROM produtos';
+  conexao.query(sql, function (erro, retorno) {
+    if (erro) throw erro;
+    res.render('relatorio', { produtos: retorno });
+  });
+});
+
+// ROTA: Gerar o Relatório em Excel
+app.get('/gerar-relatorio', (req, res) => {
+  let sql = 'SELECT * FROM produtos';
+  conexao.query(sql, function (erro, produtos) {
+    if (erro) throw erro;
+
+    // Criar uma nova planilha Excel
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Produtos');
+
+    // Definir os cabeçalhos da planilha
+    worksheet.columns = [
+      { header: 'Nome', key: 'nome', width: 30 },
+      { header: 'Valor', key: 'valor', width: 15 },
+      { header: 'Quantidade', key: 'quantidade', width: 15 }
+    ];
+
+    // Adicionar os dados dos produtos à planilha
+    produtos.forEach((produto) => {
+      worksheet.addRow({
+        nome: produto.nome,
+        valor: produto.valor,
+        quantidade: produto.quantidade
+      });
+    });
+
+    // Definir o tipo de resposta como 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=relatorio_produtos.xlsx');
+
+    // Escrever o arquivo Excel na resposta
+    workbook.xlsx.write(res)
+      .then(() => {
+        res.end(); // Finaliza a resposta após o envio do arquivo
+      })
+      .catch((erro) => {
+        console.log('Erro ao gerar o Excel:', erro);
+        res.status(500).send('Erro ao gerar o relatório.');
+      });
+  });
+});
+
+
+
+
 // Servidor
 app.listen(3000, (error) => {
   if (error) {
