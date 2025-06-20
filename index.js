@@ -6,9 +6,19 @@ const fs = require('fs');
 const { engine } = require('express-handlebars');
 const produtosMemoria = require('./produtosMemoria');
 const filaAcoes = require('./acoesfila');
+const bcrypt = require('bcryptjs');  // Para o hash das senhas
+const session = require('express-session');  // Para gerenciar as sessões de usuário
+const ExcelJS = require('exceljs'); // Para gerar o relatório em Excel
 
 // Inicializa app
 const app = express();
+
+// Configuração de sessão
+app.use(session({
+  secret: 'meuSegredo',
+  resave: false,
+  saveUninitialized: true
+}));
 
 // Configuração de diretórios estáticos
 app.use('/bootstrap', express.static('./node_modules/bootstrap/dist'));
@@ -52,8 +62,64 @@ conexao.connect(function (erro) {
   console.log('Conexão efetiva');
 });
 
+// Middleware para proteger as rotas que precisam de autenticação
+function verificarAutenticacao(req, res, next) {
+  if (req.session.usuario) {
+    return next();
+  } else {
+    res.redirect('/login');
+  }
+}
+
+// ROTA: Login (formulário de login)
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+// ROTA: Autenticar Usuário (verificar login e senha)
+app.post('/login', (req, res) => {
+  const { usuario, senha } = req.body;
+
+  let sql = 'SELECT * FROM usuarios WHERE usuario = ?';
+  conexao.query(sql, [usuario], function (erro, resultado) {
+    if (erro) throw erro;
+
+    // Se o usuário não for encontrado
+    if (resultado.length === 0) {
+      return res.status(400).send('Usuário ou senha inválidos');
+    }
+
+    // Verifica a senha com bcrypt
+    bcrypt.compare(senha, resultado[0].senha, function (erroBcrypt, resultadoBcrypt) {
+      if (erroBcrypt) throw erroBcrypt;
+
+      // Se a senha for válida
+      if (resultadoBcrypt) {
+        // Armazena o usuário na sessão
+        req.session.usuario = resultado[0].usuario;
+
+        // Redireciona para a página inicial após o login
+        res.redirect('/inicio');
+      } else {
+        return res.status(400).send('Usuário ou senha inválidos');
+      }
+    });
+  });
+});
+
+// ROTA: Logout
+app.get('/logout', (req, res) => {
+  req.session.destroy((erro) => {
+    if (erro) {
+      return res.status(500).send('Erro ao sair');
+    }
+
+    res.redirect('/login');
+  });
+});
+
 // ROTA: Cadastro
-app.get('/cadastro', (req, res) => {
+app.get('/cadastro', verificarAutenticacao, (req, res) => {
   let sql = 'SELECT * FROM produtos';
   conexao.query(sql, function (erro, retorno) {
     if (erro) throw erro;
@@ -62,7 +128,7 @@ app.get('/cadastro', (req, res) => {
 });
 
 // ROTA: Cadastrar produto
-app.post('/cadastro', function (req, res) {
+app.post('/cadastro', verificarAutenticacao, function (req, res) {
   if (!req.files || !req.files.imagem) {
     return res.status(400).send("Imagem não enviada.");
   }
@@ -97,7 +163,7 @@ app.post('/cadastro', function (req, res) {
 });
 
 // ROTA: Remover produto
-app.get('/remover/:codigo&:imagem', function (req, res) {
+app.get('/remover/:codigo&:imagem', verificarAutenticacao, function (req, res) {
   let sql = 'DELETE FROM produtos WHERE codigo = ?';
   conexao.query(sql, [req.params.codigo], function (erro, retorno) {
     if (erro) throw erro;
@@ -117,7 +183,7 @@ app.get('/remover/:codigo&:imagem', function (req, res) {
 });
 
 // ROTA: Formulário de edição
-app.get('/formulario_editar/:codigo', function (req, res) {
+app.get('/formulario_editar/:codigo', verificarAutenticacao, function (req, res) {
   let sql = 'SELECT * FROM produtos WHERE codigo = ?';
   conexao.query(sql, [req.params.codigo], function (erro, retorno) {
     if (erro) throw erro;
@@ -126,7 +192,7 @@ app.get('/formulario_editar/:codigo', function (req, res) {
 });
 
 // ROTA: Editar produto
-app.post('/editar', function (req, res) {
+app.post('/editar', verificarAutenticacao, function (req, res) {
   let codigo = req.body.codigo;
   let nome = req.body.nome;
   let valor = req.body.valor;
@@ -147,12 +213,12 @@ app.post('/editar', function (req, res) {
 });
 
 // ROTA: Histórico
-app.get('/historico', (req, res) => {
+app.get('/historico', verificarAutenticacao, (req, res) => {
   res.render('historico', { acoes: filaAcoes.listar() });
 });
 
 // ROTA: Início - exibe produtos e carrega na memória
-app.get('/inicio', (req, res) => {
+app.get('/inicio', verificarAutenticacao, (req, res) => {
   let busca = req.query.busca || '';
   let filtro = req.query.filtro || '';
   let sql = 'SELECT * FROM produtos';
@@ -178,10 +244,8 @@ app.get('/inicio', (req, res) => {
   });
 });
 
-
-
 // ROTA: Página de Baixa
-app.get('/baixa', (req, res) => {
+app.get('/baixa', verificarAutenticacao, (req, res) => {
   let sql = 'SELECT * FROM produtos';
   conexao.query(sql, function (erro, retorno) {
     if (erro) throw erro;
@@ -190,7 +254,7 @@ app.get('/baixa', (req, res) => {
 });
 
 // ROTA: Registrar Baixa no Estoque
-app.post('/baixa', (req, res) => {
+app.post('/baixa', verificarAutenticacao, (req, res) => {
   let produtoCodigo = req.body.produto; // Código do produto selecionado
   let quantidadeBaixa = parseInt(req.body.quantidade); // Quantidade da baixa
   let motivo = req.body.motivo; // Motivo da baixa
@@ -227,10 +291,6 @@ app.post('/baixa', (req, res) => {
   });
 });
 
-const ExcelJS = require('exceljs');
-
-
-
 // ROTA: Página de Relatório
 app.get('/relatorio', (req, res) => {
   let sql = 'SELECT * FROM produtos';
@@ -240,8 +300,9 @@ app.get('/relatorio', (req, res) => {
   });
 });
 
-// ROTA: Gerar o Relatório em Excel
-app.get('/gerar-relatorio', (req, res) => {
+
+// ROTA: Gerar Relatório em Excel
+app.get('/gerar-relatorio', verificarAutenticacao, (req, res) => {
   let sql = 'SELECT * FROM produtos';
   conexao.query(sql, function (erro, produtos) {
     if (erro) throw erro;
@@ -266,6 +327,8 @@ app.get('/gerar-relatorio', (req, res) => {
       });
     });
 
+
+    
     // Definir o tipo de resposta como 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename=relatorio_produtos.xlsx');
@@ -281,9 +344,6 @@ app.get('/gerar-relatorio', (req, res) => {
       });
   });
 });
-
-
-
 
 // Servidor
 app.listen(3000, (error) => {

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/login">📦 Estocando</a>
+    </div>
+  </nav>
+
+  <!-- Conteúdo -->
+  <div class="container">
+    <h2 class="mb-4">Fazer Login</h2>
+
+    <div class="row">
+      <div class="col-md-6 offset-md-3" style="background-color:#f8f9fa; padding: 30px; border-radius: 10px;">
+        <form action="/login" method="post">
+          <!-- Usuário -->
+          <div class="form-group mb-3">
+            <label for="usuario" class="form-label">Usuário</label>
+            <input type="text" name="usuario" id="usuario" class="form-control" placeholder="Digite o nome de usuário" required>
+          </div>
+
+          <!-- Senha -->
+          <div class="form-group mb-3">
+            <label for="senha" class="form-label">Senha</label>
+            <input type="password" name="senha" id="senha" class="form-control" placeholder="Digite sua senha" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

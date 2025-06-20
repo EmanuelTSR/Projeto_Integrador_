@@ -10,11 +10,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "bootstrap": "^5.3.5",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-fileupload": "^1.5.1",
     "express-handlebars": "^8.0.3",
+    "express-session": "^1.18.1",
     "mysql2": "^3.14.1"
   }
 }
