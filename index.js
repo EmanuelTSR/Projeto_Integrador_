@@ -118,6 +118,15 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// Middleware para proteger as rotas que precisam de autenticação
+function verificarAutenticacao(req, res, next) {
+  if (req.session.usuario) {
+    return next();
+  } else {
+    res.redirect('/login');
+  }
+}
+
 // ROTA: Cadastro
 app.get('/cadastro', verificarAutenticacao, (req, res) => {
   let sql = 'SELECT * FROM produtos';
@@ -173,7 +182,7 @@ app.get('/remover/:codigo&:imagem', verificarAutenticacao, function (req, res) {
     });
 
     filaAcoes.enfileirar({
-      tipo: 'remocao',
+      tipo: 'remoção',
       produto: req.params.codigo,
       data: new Date()
     });
@@ -217,8 +226,8 @@ app.get('/historico', verificarAutenticacao, (req, res) => {
   res.render('historico', { acoes: filaAcoes.listar() });
 });
 
-// ROTA: Inicio - exibe produtos e carrega na memória
-app.get('/inicio', (req, res) => {
+// ROTA: Início - exibe produtos e carrega na memória
+app.get('/inicio', verificarAutenticacao, (req, res) => {
   let busca = req.query.busca || '';
   let filtro = req.query.filtro || '';
   let ordenacao = req.query.ordenacao || ''; // Obter a opção de ordenação
@@ -257,7 +266,7 @@ app.get('/inicio', (req, res) => {
 });
 
 // ROTA: Página de Baixa
-app.get('/baixa', (req, res) => {
+app.get('/baixa', verificarAutenticacao, (req, res) => {
   let sql = 'SELECT * FROM produtos';
   conexao.query(sql, function (erro, retorno) {
     if (erro) throw erro;
@@ -266,7 +275,7 @@ app.get('/baixa', (req, res) => {
 });
 
 // ROTA: Registrar Baixa no Estoque
-app.post('/baixa', (req, res) => {
+app.post('/baixa', verificarAutenticacao, (req, res) => {
   let produtoCodigo = req.body.produto; // Código do produto selecionado
   let quantidadeBaixa = parseInt(req.body.quantidade); // Quantidade da baixa
   let motivo = req.body.motivo; // Motivo da baixa

@@ -7,7 +7,7 @@ function carregarProdutos(listaDoBanco) {
   produtos.push(...listaDoBanco); // Carrega os produtos
 }
 
-// Função de busca por nome (insensível a maiúsculas)
+// Função de busca por nome 
 function buscarPorNome(parcial) {
   const termo = parcial.toLowerCase();
   return produtos.filter(produto =>
