@@ -13,7 +13,7 @@ const ExcelJS = require('exceljs'); // Para gerar o relatório em Excel
 // Inicializa app
 const app = express();
 
-//admin senha:minhasenha SENHA PADRAO
+//USUARIO PADRAO CONFIGURADO:admin senha:minhasenha 
 
 // Configuração de sessão
 app.use(session({
